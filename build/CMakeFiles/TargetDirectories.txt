@@ -1,0 +1,14 @@
+/home/pedro/repo/caffeine/caf-pack/build/CMakeFiles/edit_cache.dir
+/home/pedro/repo/caffeine/caf-pack/build/CMakeFiles/rebuild_cache.dir
+/home/pedro/repo/caffeine/caf-pack/build/CMakeFiles/list_install_components.dir
+/home/pedro/repo/caffeine/caf-pack/build/CMakeFiles/install.dir
+/home/pedro/repo/caffeine/caf-pack/build/CMakeFiles/install/local.dir
+/home/pedro/repo/caffeine/caf-pack/build/CMakeFiles/install/strip.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/caf-pack-lib.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/caf-pack.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/edit_cache.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/rebuild_cache.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/list_install_components.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/install.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/install/local.dir
+/home/pedro/repo/caffeine/caf-pack/build/src/CMakeFiles/install/strip.dir

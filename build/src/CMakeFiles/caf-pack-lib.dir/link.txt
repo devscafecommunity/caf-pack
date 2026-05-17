@@ -1,0 +1,2 @@
+/usr/bin/ar qc libcaf-pack-lib.a "CMakeFiles/caf-pack-lib.dir/Packer.cpp.o" "CMakeFiles/caf-pack-lib.dir/AssetProcessor.cpp.o" "CMakeFiles/caf-pack-lib.dir/TextureProcessor.cpp.o" "CMakeFiles/caf-pack-lib.dir/AudioProcessor.cpp.o"
+/usr/bin/ranlib libcaf-pack-lib.a

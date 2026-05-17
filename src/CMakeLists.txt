@@ -10,6 +10,7 @@ add_library(caf-pack-lib
     AssetProcessor.cpp
     TextureProcessor.cpp
     AudioProcessor.cpp
+    MeshProcessor.cpp
 )
 
 target_include_directories(caf-pack-lib 

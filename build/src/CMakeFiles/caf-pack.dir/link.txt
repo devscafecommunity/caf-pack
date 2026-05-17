@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/caf-pack.dir/link.d "CMakeFiles/caf-pack.dir/main.cpp.o" -o caf-pack  libcaf-pack-lib.a /usr/lib/libpng.so /usr/lib/libz.so

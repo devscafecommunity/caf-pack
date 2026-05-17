@@ -2,6 +2,7 @@
 #include "caf-pack/AssetProcessor.hpp"
 #include "caf-pack/TextureProcessor.hpp"
 #include "caf-pack/AudioProcessor.hpp"
+#include "caf-pack/MeshProcessor.hpp"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -142,6 +143,7 @@ bool Packer::writeCAPContainer(const std::vector<std::pair<std::string, std::vec
 void Packer::registerProcessors() {
     m_processors.push_back(std::make_unique<TextureProcessor>());
     m_processors.push_back(std::make_unique<AudioProcessor>());
+    m_processors.push_back(std::make_unique<MeshProcessor>());
 }
 
 }  // namespace CafPack

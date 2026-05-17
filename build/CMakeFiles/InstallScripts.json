@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/pedro/repo/caffeine/caf-pack/build/cmake_install.cmake",
+		"/home/pedro/repo/caffeine/caf-pack/build/src/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
