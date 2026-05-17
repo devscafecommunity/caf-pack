@@ -20,7 +20,7 @@ public:
     );
 
 private:
-    static uint64_t murmurHash3(const std::string& str);
+    static uint64_t fnv1aHash(const std::string& str);
     static std::string assetNameToIdentifier(const std::string& filename);
 };
 

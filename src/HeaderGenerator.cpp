@@ -7,13 +7,13 @@
 
 namespace CafPack {
 
-uint64_t HeaderGenerator::murmurHash3(const std::string& str) {
-    uint64_t h = 0xcbf29ce484222325ULL;
+uint64_t HeaderGenerator::fnv1aHash(const std::string& str) {
+    uint64_t hash = 14695981039346656037ULL;
     for (char c : str) {
-        h = h ^ static_cast<unsigned char>(c);
-        h = h * 0x100000001b3ULL;
+        hash ^= static_cast<unsigned char>(c);
+        hash *= 1099511628211ULL;
     }
-    return h;
+    return hash;
 }
 
 std::string HeaderGenerator::assetNameToIdentifier(const std::string& filename) {
