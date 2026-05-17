@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <zstd.h>
 
 namespace CafPack {
 
@@ -93,15 +94,40 @@ bool Packer::writeCAPContainer(const std::vector<std::pair<std::string, std::vec
     using namespace Caffeine::Assets;
 
     std::vector<CapEntry> entries;
+    std::vector<std::vector<uint8_t>> compressedAssets;
     uint64_t dataOffset = sizeof(CapHeader) + (assets.size() * sizeof(CapEntry));
 
     for (const auto& [filename, cafData] : assets) {
+        std::vector<uint8_t> processedData;
+        
+        if (m_config.compress && cafData.size() > 100) {
+            size_t compBound = ZSTD_compressBound(cafData.size());
+            processedData.resize(compBound);
+            
+            size_t compSize = ZSTD_compress(
+                processedData.data(), 
+                compBound,
+                cafData.data(), 
+                cafData.size(),
+                3
+            );
+            
+            if (!ZSTD_isError(compSize)) {
+                processedData.resize(compSize);
+            } else {
+                processedData = cafData;
+            }
+        } else {
+            processedData = cafData;
+        }
+        
         CapEntry entry;
         entry.hashID = murmurHash3(filename);
         entry.offset = dataOffset;
-        entry.size = cafData.size();
+        entry.size = processedData.size();
         entries.push_back(entry);
-        dataOffset += cafData.size();
+        compressedAssets.push_back(processedData);
+        dataOffset += processedData.size();
     }
 
     CapHeader header;
@@ -126,8 +152,8 @@ bool Packer::writeCAPContainer(const std::vector<std::pair<std::string, std::vec
         file.write(reinterpret_cast<const char*>(&entry), sizeof(CapEntry));
     }
 
-    for (const auto& [filename, cafData] : assets) {
-        file.write(reinterpret_cast<const char*>(cafData.data()), cafData.size());
+    for (const auto& compressedData : compressedAssets) {
+        file.write(reinterpret_cast<const char*>(compressedData.data()), compressedData.size());
     }
 
     file.close();

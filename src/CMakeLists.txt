@@ -3,6 +3,7 @@
 # Find dependencies
 find_package(PNG REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(zstd REQUIRED)
 
 # caf-pack library
 add_library(caf-pack-lib
@@ -19,7 +20,7 @@ target_include_directories(caf-pack-lib
 )
 
 target_link_libraries(caf-pack-lib
-    PUBLIC PNG::PNG ZLIB::ZLIB
+    PUBLIC PNG::PNG ZLIB::ZLIB zstd::libzstd_shared
 )
 
 target_compile_definitions(caf-pack-lib PRIVATE HAVE_PNG)
