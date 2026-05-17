@@ -1,4 +1,5 @@
 #include "caf-pack/Packer.hpp"
+#include "caf-pack/HeaderGenerator.hpp"
 #include <iostream>
 #include <cstring>
 
@@ -49,6 +50,22 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Successfully packed " << packer.getAssetCount() << " assets to " 
               << config.outputFile.string() << "\n";
+
+    if (config.generateHeader) {
+        std::vector<CafPack::HeaderGenerator::AssetEntry> entries;
+        
+        for (const auto& [name, id] : packer.getAssetEntries()) {
+            entries.push_back({name, id});
+        }
+
+        try {
+            CafPack::HeaderGenerator::generateHeader(entries, config.headerPath);
+            std::cout << "Generated header file: " << config.headerPath.string() << "\n";
+        } catch (const std::exception& e) {
+            std::cerr << "Error generating header: " << e.what() << "\n";
+            return 1;
+        }
+    }
 
     return 0;
 }

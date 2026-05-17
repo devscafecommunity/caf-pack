@@ -33,11 +33,14 @@ public:
 
     uint32_t getAssetCount() const { return m_assetCount; }
 
+    const std::vector<std::pair<std::string, uint64_t>>& getAssetEntries() const { return m_assetEntries; }
+
 private:
     Config m_config;
     std::string m_error;
     uint32_t m_assetCount = 0;
     std::vector<std::unique_ptr<AssetProcessor>> m_processors;
+    std::vector<std::pair<std::string, uint64_t>> m_assetEntries;
 
     bool discoverAssets(std::vector<std::filesystem::path>& assets);
 

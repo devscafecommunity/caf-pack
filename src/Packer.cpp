@@ -93,6 +93,7 @@ bool Packer::processAsset(const std::filesystem::path& inputPath, std::vector<ui
 bool Packer::writeCAPContainer(const std::vector<std::pair<std::string, std::vector<uint8_t>>>& assets) {
     using namespace Caffeine::Assets;
 
+    m_assetEntries.clear();
     std::vector<CapEntry> entries;
     std::vector<std::vector<uint8_t>> compressedAssets;
     uint64_t dataOffset = sizeof(CapHeader) + (assets.size() * sizeof(CapEntry));
@@ -121,12 +122,14 @@ bool Packer::writeCAPContainer(const std::vector<std::pair<std::string, std::vec
             processedData = cafData;
         }
         
+        uint64_t hashID = murmurHash3(filename);
         CapEntry entry;
-        entry.hashID = murmurHash3(filename);
+        entry.hashID = hashID;
         entry.offset = dataOffset;
         entry.size = processedData.size();
         entries.push_back(entry);
         compressedAssets.push_back(processedData);
+        m_assetEntries.emplace_back(filename, hashID);
         dataOffset += processedData.size();
     }
 

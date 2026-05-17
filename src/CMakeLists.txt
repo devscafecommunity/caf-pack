@@ -12,6 +12,7 @@ add_library(caf-pack-lib
     TextureProcessor.cpp
     AudioProcessor.cpp
     MeshProcessor.cpp
+    HeaderGenerator.cpp
 )
 
 target_include_directories(caf-pack-lib 
