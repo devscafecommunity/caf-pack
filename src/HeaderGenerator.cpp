@@ -27,7 +27,7 @@ std::string HeaderGenerator::assetNameToIdentifier(const std::string& filename) 
     std::transform(id.begin(), id.end(), id.begin(), 
         [](unsigned char c) {
             if (!std::isalnum(c)) return '_';
-            return std::tolower(c);
+            return static_cast<char>(std::tolower(c));
         }
     );
     
@@ -40,7 +40,7 @@ std::string HeaderGenerator::assetNameToIdentifier(const std::string& filename) 
 
 void HeaderGenerator::generateHeader(
     const std::vector<AssetEntry>& assets,
-    const std::filesystem::path& outputPath
+    const std::string& outputPath
 ) {
     std::ofstream header(outputPath);
     if (!header) {

@@ -16,7 +16,7 @@ class HeaderGenerator {
 public:
     static void generateHeader(
         const std::vector<AssetEntry>& assets,
-        const std::filesystem::path& outputPath
+        const std::string& outputPath
     );
 
 private:

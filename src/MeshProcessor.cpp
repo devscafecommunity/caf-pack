@@ -3,6 +3,7 @@
 #include <sstream>
 #include <cstring>
 #include <algorithm>
+#include <array>
 #include <cmath>
 
 namespace CafPack {
@@ -56,7 +57,7 @@ bool MeshProcessor::parseOBJ(const std::filesystem::path& path, Mesh& outMesh,
         if (token == "v") {
             float x, y, z;
             if (iss >> x >> y >> z) {
-                positions.push_back({x, y, z});
+                positions.push_back(std::array<float, 3>{x, y, z});
             }
         } else if (token == "vn") {
             float nx, ny, nz;
@@ -65,19 +66,19 @@ bool MeshProcessor::parseOBJ(const std::filesystem::path& path, Mesh& outMesh,
                 if (len > 0.0001f) {
                     nx /= len; ny /= len; nz /= len;
                 }
-                normals.push_back({nx, ny, nz});
+                normals.push_back(std::array<float, 3>{nx, ny, nz});
             }
         } else if (token == "vt") {
             float u, v;
             if (iss >> u >> v) {
-                texCoords.push_back({u, v});
+                texCoords.push_back(std::array<float, 2>{u, v});
             }
         } else if (token == "f") {
             std::string vertexStr;
             std::vector<std::array<int, 3>> faceVertices;
             
             while (iss >> vertexStr) {
-                std::array<int, 3> indices = {0, 0, 0};
+                std::array<int, 3> indices{0, 0, 0};
                 int vIdx = 0, vtIdx = 0, vnIdx = 0;
                 
                 size_t pos = 0;

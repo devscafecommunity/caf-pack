@@ -52,7 +52,7 @@ int main(int argc, char* argv[]) {
               << config.outputFile.string() << "\n";
 
     if (config.generateHeader) {
-        std::vector<CafPack::HeaderGenerator::AssetEntry> entries;
+        std::vector<CafPack::AssetEntry> entries;
         
         for (const auto& [name, id] : packer.getAssetEntries()) {
             entries.push_back({name, id});
@@ -60,7 +60,7 @@ int main(int argc, char* argv[]) {
 
         try {
             CafPack::HeaderGenerator::generateHeader(entries, config.headerPath);
-            std::cout << "Generated header file: " << config.headerPath.string() << "\n";
+            std::cout << "Generated header file: " << config.headerPath << "\n";
         } catch (const std::exception& e) {
             std::cerr << "Error generating header: " << e.what() << "\n";
             return 1;
