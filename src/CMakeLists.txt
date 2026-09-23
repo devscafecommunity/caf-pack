@@ -13,6 +13,8 @@ add_library(caf-pack-lib
     AudioProcessor.cpp
     MeshProcessor.cpp
     HeaderGenerator.cpp
+    Reader.cpp
+    Registry.cpp
 )
 
 target_include_directories(caf-pack-lib 

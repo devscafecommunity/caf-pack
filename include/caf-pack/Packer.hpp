@@ -5,8 +5,7 @@
 #include <cstdint>
 #include <filesystem>
 #include <memory>
-#include <map>
-#include "AssetProcessor.hpp"
+#include "Registry.hpp"
 
 namespace CafPack {
 
@@ -39,7 +38,7 @@ private:
     Config m_config;
     std::string m_error;
     uint32_t m_assetCount = 0;
-    std::vector<std::unique_ptr<AssetProcessor>> m_processors;
+    Registry m_registry;
     std::vector<std::pair<std::string, uint64_t>> m_assetEntries;
 
     bool discoverAssets(std::vector<std::filesystem::path>& assets);
@@ -47,8 +46,6 @@ private:
     bool processAsset(const std::filesystem::path& inputPath, std::vector<uint8_t>& cafData);
 
     bool writeCAPContainer(const std::vector<std::pair<std::string, std::vector<uint8_t>>>& assets);
-
-    void registerProcessors();
 };
 
 }  // namespace CafPack

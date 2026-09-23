@@ -1,8 +1,4 @@
 #include "caf-pack/Packer.hpp"
-#include "caf-pack/AssetProcessor.hpp"
-#include "caf-pack/TextureProcessor.hpp"
-#include "caf-pack/AudioProcessor.hpp"
-#include "caf-pack/MeshProcessor.hpp"
 #include <iostream>
 #include <fstream>
 #include <cstring>
@@ -19,9 +15,7 @@ static uint64_t murmurHash3(const std::string& str) {
     return h;
 }
 
-Packer::Packer(const Config& config) : m_config(config) {
-    registerProcessors();
-}
+Packer::Packer(const Config& config) : m_config(config), m_registry(makeDefaultRegistry()) {}
 
 bool Packer::pack() {
     m_assetCount = 0;
@@ -75,18 +69,11 @@ bool Packer::discoverAssets(std::vector<std::filesystem::path>& assets) {
 }
 
 bool Packer::processAsset(const std::filesystem::path& inputPath, std::vector<uint8_t>& cafData) {
-    for (auto& processor : m_processors) {
-        if (processor->canProcess(inputPath)) {
-            std::string error;
-            if (processor->process(inputPath, cafData, error)) {
-                return true;
-            }
-            m_error = error;
-            return false;
-        }
+    std::string error;
+    if (m_registry.process(inputPath, cafData, error)) {
+        return true;
     }
-
-    m_error = "No processor found for file: " + inputPath.string();
+    m_error = error;
     return false;
 }
 
@@ -167,12 +154,6 @@ bool Packer::writeCAPContainer(const std::vector<std::pair<std::string, std::vec
     }
 
     return true;
-}
-
-void Packer::registerProcessors() {
-    m_processors.push_back(std::make_unique<TextureProcessor>());
-    m_processors.push_back(std::make_unique<AudioProcessor>());
-    m_processors.push_back(std::make_unique<MeshProcessor>());
 }
 
 }  // namespace CafPack
