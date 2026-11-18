@@ -1,91 +1,155 @@
-# 📦 caf-pack (Caffeine Asset Packer)
+# caf-pack — Caffeine Asset Packer
 
-O **caf-pack** é o motor de processamento de dados da **Caffeine Engine**. Ele transforma arquivos brutos (PNG, OBJ, JSON, WAV) em arquivos binários otimizados `.caf` e os agrupa em um super-pacote `.cap` pronto para **Memory Mapping (mmap)**.
+<div class="doc-meta">
+  <span class="doc-badge doc-badge--stable">Stable</span>
+  <span class="doc-badge">Tooling</span>
+  <span>Atualizado em: <time datetime="2026-11-18">2026-11-18</time></span>
+  <span>Fonte: <a href="https://github.com/devscafecommunity/caf-pack"><code>devscafecommunity/caf-pack</code></a></span>
+</div>
 
-## 🎯 Filosofia
-* **Zero-Parsing:** A Engine não interpreta texto; o caf-pack já entrega o binário no formato da struct de C++.
-* **Memory-Ready:** Todo asset é alinhado em 32-bytes para acesso direto via CPU/GPU.
-* **Hash-Based:** Arquivos são referenciados por `u64` (MurmurHash3), eliminando buscas por strings em runtime.
+<p class="doc-lede">Converte assets brutos (PNG, WAV, OBJ) em ficheiros
+<code>.caf</code> alinhados e empacota-os num <code>.cap</code> pronto para memory
+mapping. A engine lê o binário diretamente; não há parsing de texto em runtime.</p>
 
----
+## Filosofia
 
-## 🛠️ Estrutura do Repositório
+| Princípio | O que significa |
+|---|---|
+| **Zero-parsing** | A CLI entrega a struct binária no layout C++ de `include/caffeine/CafTypes.hpp`. |
+| **Alinhamento** | Cada payload começa num limite de 32 bytes (`Packer::Config::alignment`). |
+| **Hash-based** | Assets são referenciados por `u64` (MurmurHash3), sem procuras por string em runtime. |
+| **Pack** | Processa cada asset para `.caf` em memória e agrega tudo num `.cap`. |
+
+## Estrutura real
 
 ```text
-/
-├── bin/                # Binários compilados (caf-pack CLI)
-├── src/
-│   ├── core/           # Lógica de empacotamento e alinhamento
-│   ├── processors/     # Conversores (Image2Caf, Mesh2Caf, Scribe2Caf)
-│   └── utils/          # Hashing (MurmurHash3) e IO
+caf-pack/
 ├── include/
-│   └── Caffeine/       # Shared Headers (CafTypes.hpp) entre Pack e Engine
-├── tests/              # Assets de teste e validação de saída
-└── build.py            # Script de build (ou CMakeLists.txt)
+│   ├── caffeine/CafTypes.hpp      # Formatos CAF e CAP partilhados com a engine
+│   └── caf-pack/
+│       ├── Packer.hpp             # Descoberta, processamento e container CAP
+│       ├── Registry.hpp           # Registo de processors por extensão
+│       ├── Reader.hpp             # Ler .caf e .cap
+│       ├── HeaderGenerator.hpp    # IDs C++ a partir dos assets
+│       └── *Processor.hpp         # PNG, WAV, OBJ → .caf
+├── src/
+│   ├── main.cpp                   # CLI
+│   ├── Packer.cpp
+│   ├── Registry.cpp
+│   ├── Reader.cpp
+│   ├── AssetProcessor.cpp
+│   ├── TextureProcessor.cpp
+│   ├── AudioProcessor.cpp
+│   ├── MeshProcessor.cpp
+│   └── HeaderGenerator.cpp
+└── CMakeLists.txt
 ```
 
----
+## CLI
 
-## 🏗️ O Formato .CAP (Caffeine Asset Pack)
-
-O arquivo `.cap` gerado segue o layout de memória abaixo:
-
-| Seção | Conteúdo | Descrição |
-| :--- | :--- | :--- |
-| **Header** | `CapHeader` | Magic (`CAP!`), Versão e Contagem de Assets. |
-| **Table** | `CapEntry[]` | Array de busca rápida: `HashID | Offset | Size`. |
-| **Padding** | `0x00...` | Alinhamento para garantir que o primeiro blob comece em 32-bytes. |
-| **Blobs** | `[.caf, .caf, ...]` | O payload real dos arquivos processados. |
-
----
-
-## 🚀 Como Usar (CLI)
-
-### 1. Empacotar um diretório
 ```bash
-./caf-pack --input ./assets_raw --output game_data.cap
+caf-pack --input ./assets_raw --output game.cap
+caf-pack --input ./assets_raw --output game.cap --gen-ids assets_ids.hpp
+caf-pack --input ./assets_raw --output game.cap --compress
 ```
 
-### 2. Gerar Header de IDs (Opcional)
-Gera um arquivo `.hpp` com constantes para que você não precise usar strings nem no código:
-```bash
-./caf-pack --input ./assets_raw --gen-ids assets_ids.hpp
-```
+| Opção | Efeito |
+|---|---|
+| `--input <dir>` | Diretório de assets brutos (obrigatório). |
+| `--output <file>` | Ficheiro `.cap` de saída (padrão `assets.cap`). |
+| `--gen-ids <file>` | Gera um header C++ com constantes de id. |
+| `--compress` | Ativa compressão opcional. |
+| `--help` | Mostra a ajuda. |
 
----
+O Doppio usa a mesma CLI no assistente de Assets (Create/Import/Pack); o caminho do
+binário é descoberto por `CAF_PACK`, `CAFFEINE_ENGINE_ROOT`, `caf-pack/build/src` ou
+`PATH`.
 
-## ⚙️ Processadores Integrados
+## Biblioteca (`caf-pack-lib`)
 
-1.  **Scribe (Localization):** Converte arquivos `.lang` (chave-valor) em uma `StringTable` binária de acesso $O(1)$.
-2.  **Mesh (3D):** Converte `.obj` ou `.fbx` para buffers de vértices intercalados (*interleaved*).
-3.  **Texture:** Converte imagens para formatos brutos (RGBA8/BCn) com suporte a mipmaps pré-gerados.
-
----
-
-## 🛠️ Build & Requisitos
-
-* **Linguagem:** C++ 17 ou superior.
-* **Dependências:** * `stb_image` (Processamento de imagem).
-    * `fast_obj` (Parser rápido de OBJ).
-* **Plataformas:** Windows (MSVC), Linux (GCC/Clang).
-
----
-
-## 📝 Exemplo de Implementação de Header (`CafTypes.hpp`)
+A CLI é uma camada fina sobre a biblioteca partilhada:
 
 ```cpp
-namespace Caffeine {
-    struct CapHeader {
-        uint32_t magic = 0x43415021; // "CAP!"
-        uint32_t assetCount;
-    };
+#include "caf-pack/Packer.hpp"
+#include "caf-pack/Reader.hpp"
+#include "caf-pack/Registry.hpp"
 
-    struct CapEntry {
-        uint64_t hashID;   // MurmurHash3 do path original
-        uint64_t offset;   // Posição absoluta no arquivo
-        uint64_t size;     // Tamanho total do asset
-    };
+CafPack::Packer::Config config;
+config.inputDir = "assets/raw";
+config.outputFile = "build/game.cap";
+config.generateHeader = true;
+config.headerPath = "build/game_assets.hpp";
+
+CafPack::Packer packer(config);
+if (!packer.pack()) {
+    // packer.getError()
 }
+
+auto assets = CafPack::Reader::loadCap("build/game.cap");
+CafPack::CafAsset one;
+CafPack::Reader::loadCaf("assets/raw/Textures/brick.caf", one);
 ```
 
-> **Nota:** Este projeto é parte integrante do ecossistema **Caffeine Engine**.
+| Classe | Responsabilidade |
+|---|---|
+| `Packer` | Descobre assets, processa e escreve o container CAP. |
+| `Registry` | Registo extensível de processors; `makeDefaultRegistry()` inclui textura, áudio e mesh. |
+| `Reader` | `loadCap`, `loadCaf` e `readCafHeader` para consumidores C++ e tools. |
+| `HeaderGenerator` | Gera constantes C++ com os hashes dos assets. |
+
+### Registar um novo tipo
+
+1. Adicione o valor em `CafAssetType` (`include/caffeine/CafTypes.hpp`).
+2. Defina a metadata no mesmo header, se o asset precisar de campos próprios.
+3. Implemente `AssetProcessor` (`canProcess` + `process`).
+4. Registe-o em `Registry` (ou em `makeDefaultRegistry()` para um processor built-in).
+5. Consumidores usam `Reader`/`AssetManager`; não fazem parsing do `.caf` à mão.
+
+## Formato CAF
+
+`CafHeader` tem 32 bytes: magic `CAF!`, versão, tipo de asset, tamanho do payload,
+flags e CRC64. Metadados específicos seguem o header:
+
+| Tipo | Metadados |
+|---|---|
+| Textura | `width`, `height`, `format` (RGBA8/BC1/BC4/BC5), `mipLevels` |
+| Áudio | `sampleRate`, `sampleCount`, `channels`, `format` (PCM16/PCM32) |
+| Mesh | `vertexCount`, `indexCount`, `vertexStride`, `indexFormat` |
+
+Os dados começam no próximo limite de 32 bytes.
+
+## Formato CAP
+
+| Secção | Conteúdo |
+|---|---|
+| **Header** | `CapHeader` com magic `CAP/`, versão e contagem de assets. |
+| **Table** | `CapEntry[]` com `hashID`, `offset` e `size`. |
+| **Padding** | Alinhamento a 32 bytes. |
+| **Blobs** | Payloads `.caf` concatenados. |
+
+O runtime mapeia o `.cap` e resolve assets pelo hash, sem varrer diretórios.
+
+## Build
+
+Requisitos: C++17, CMake 3.20+, libpng, zlib e zstd.
+
+```bash
+cmake -S caf-pack -B caf-pack/build -DCAFFEINE_ROOT="$PWD"
+cmake --build caf-pack/build -j
+```
+
+O binário fica em `caf-pack/build/src/caf-pack` num build standalone, ou em
+`build/caf-pack/src/caf-pack` no monorepo. A partir do repositório da engine, o build normal também o compila
+quando o submódulo está presente.
+
+## Testes
+
+Os testes do caf-pack vivem em `tests/` no repositório do submódulo. No monorepo, a
+engine compila a biblioteca partilhada e os testes de integração usam o mesmo
+`CafTypes.hpp`; execute `ctest` a partir de `build/`.
+
+## Relação com a engine
+
+- `include/caffeine/CafTypes.hpp` é a fonte de verdade dos layouts.
+- O asset manager carrega `.caf`/`.cap` por hash e faz memory mapping.
+- O pipeline de import do Doppio chama a CLI e atualiza a cache de assets.
