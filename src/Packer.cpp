@@ -19,6 +19,7 @@ Packer::Packer(const Config& config) : m_config(config), m_registry(makeDefaultR
 
 bool Packer::pack() {
     m_assetCount = 0;
+    m_skipped.clear();
     
     std::vector<std::filesystem::path> assets;
     if (!discoverAssets(assets)) {
@@ -57,6 +58,10 @@ bool Packer::discoverAssets(std::vector<std::filesystem::path>& assets) {
     try {
         for (const auto& entry : std::filesystem::recursive_directory_iterator(m_config.inputDir)) {
             if (entry.is_regular_file()) {
+                if (Registry::isEditorOnly(entry.path())) {
+                    m_skipped.push_back(entry.path().filename().string());
+                    continue;
+                }
                 assets.push_back(entry.path());
             }
         }

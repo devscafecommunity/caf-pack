@@ -4,6 +4,10 @@
 #include "caf-pack/MeshProcessor.hpp"
 #include "caf-pack/TextureProcessor.hpp"
 
+#include <algorithm>
+#include <cctype>
+#include <string>
+
 namespace CafPack {
 
 Registry::Registry() = default;
@@ -29,6 +33,19 @@ bool Registry::process(const std::filesystem::path& path, CafData& out,
         return false;
     }
     return processor->process(path, out, error);
+}
+
+bool Registry::isEditorOnly(const std::filesystem::path& path) {
+    std::string name = path.filename().string();
+    std::transform(name.begin(), name.end(), name.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    if (name.find(".generator.") != std::string::npos) return true;
+    const std::string extension = path.extension().string();
+    std::string lower = extension;
+    std::transform(lower.begin(), lower.end(), lower.begin(),
+                   [](unsigned char c) { return static_cast<char>(std::tolower(c)); });
+    return lower == ".mgraph" || lower == ".texgraph" || lower == ".nature" || lower == ".water" ||
+           lower == ".terrain-graph";
 }
 
 Registry makeDefaultRegistry() {

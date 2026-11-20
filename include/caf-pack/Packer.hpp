@@ -32,6 +32,9 @@ public:
 
     uint32_t getAssetCount() const { return m_assetCount; }
 
+    /// Editor-only sources (`*.generator.*` recipes, graph sidecars) left out of the package.
+    const std::vector<std::string>& getSkipped() const { return m_skipped; }
+
     const std::vector<std::pair<std::string, uint64_t>>& getAssetEntries() const { return m_assetEntries; }
 
 private:
@@ -39,6 +42,7 @@ private:
     std::string m_error;
     uint32_t m_assetCount = 0;
     Registry m_registry;
+    std::vector<std::string> m_skipped;
     std::vector<std::pair<std::string, uint64_t>> m_assetEntries;
 
     bool discoverAssets(std::vector<std::filesystem::path>& assets);

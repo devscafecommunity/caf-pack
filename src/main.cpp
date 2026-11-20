@@ -51,6 +51,10 @@ int main(int argc, char* argv[]) {
     std::cout << "Successfully packed " << packer.getAssetCount() << " assets to " 
               << config.outputFile.string() << "\n";
 
+    for (const auto& skipped : packer.getSkipped()) {
+        std::cout << "Skipped editor-only source: " << skipped << "\n";
+    }
+
     if (config.generateHeader) {
         std::vector<CafPack::AssetEntry> entries;
         
