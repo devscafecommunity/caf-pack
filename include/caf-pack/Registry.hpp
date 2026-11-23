@@ -21,6 +21,11 @@ public:
 
     bool process(const std::filesystem::path& path, CafData& out, std::string& error) const;
 
+    /// Editor-only sources are never packed: `*.generator.<kind>` recipes (the editable graph
+    /// beside a baked product) and the older graph sidecars (`.mgraph`, `.texgraph`, `.nature`,
+    /// `.water`, `.terrain-graph`). The packer skips and reports them instead of failing.
+    static bool isEditorOnly(const std::filesystem::path& path);
+
 private:
     std::vector<std::unique_ptr<AssetProcessor>> m_processors;
 };
