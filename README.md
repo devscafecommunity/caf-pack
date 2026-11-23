@@ -59,6 +59,10 @@ caf-pack --input ./assets_raw --output game.cap --compress
 | `--output <file>` | Ficheiro `.cap` de saída (padrão `assets.cap`). |
 | `--gen-ids <file>` | Gera um header C++ com constantes de id. |
 | `--compress` | Ativa compressão opcional. |
+| `--convert-terrain <ficheiro.cterrain>` | Converte um terreno legado num `.terrain` nativo (contentor `caf` por tiles), sem perdas: lê o resultado de volta e compara bit a bit. `--output` define o ficheiro (padrão: mesmo nome, `.terrain`). Só existe quando o caf-pack é compilado dentro da árvore da engine. |
+| `--terrain-size <x> <z>` | Extensão em metros gravada no `.terrain` (padrão 512 512; o `.cterrain` não a guarda). |
+| `--terrain-max-height <m>` | Escala de altura em metros gravada no `.terrain` (padrão 80). |
+| `--no-verify` | Salta a verificação bit a bit da conversão de terreno. |
 | `--help` | Mostra a ajuda. |
 
 O Doppio usa a mesma CLI no assistente de Assets (Create/Import/Pack); o caminho do
